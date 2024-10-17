@@ -55,4 +55,27 @@ describe('Base Game Functions', function() {
         });
     });
     
+    it('should print a board with empty spots', function() {
+        let board = [
+            [1, null, 3, 4],
+            [5, 6, 7, null],
+            [9, null, 11, 12],
+            [13, null, null, null]
+        ];
+    
+        print_board(board);
+    
+        const correct_board = [
+            '###############',
+            '#  1  -  3  4 #',
+            '#  5  6  7  - #',
+            '#  9  - 11 12 #',
+            '# 13  -  -  - #',
+            '###############'
+        ];
+    
+        correct_board.forEach((line, index) => {
+            assert(consoleSpy.getCall(index).calledWithExactly(line));
+        });
+    });
 });
