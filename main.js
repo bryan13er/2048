@@ -9,19 +9,9 @@ process.stdin.setRawMode(true);
 
 let game = new Game2048(4);
 
-// Add some tiles to the board
-game.addTile(0, 0, 2);
-game.addTile(1, 0, 2)
-game.addTile(2, 0, 2)
-
-// console.log("Before Shift:");
-// game.printBoard();
-
-// function testShift(direction){
-//     game.shift(direction);
-//     console.log("After shift:", direction);
-//     game.printBoard(direction);
-// }
+// Add initial random tiles to the board
+game.addRandomTile();
+game.addRandomTile();
 
 // Handle keypresses in the terminal
 process.stdin.on('keypress', (str, key) => {
@@ -46,6 +36,9 @@ process.stdin.on('keypress', (str, key) => {
         default:
             return;  // Ignore other keys
     }
+
+    // Add a random tile after each move
+    game.addRandomTile();
 
     // After shifting, re-render the board
     console.log();
