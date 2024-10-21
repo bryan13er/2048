@@ -9,6 +9,12 @@ class Game2048 {
         this.sparseBoard = {};  // Sparse dictionary to hold only non-null tiles
         this.keyMap = this.initializeKeyMap(size);  // Array of precomputed keys
         this.allKeys = this.flattenKeyMap();  // Flattened list of all possible keys
+        this.score = 0;
+    }
+
+    // Update the score when two tiles are merged
+    updateScore(mergedValue) {
+        this.score += mergedValue;  // Increase score by the value of the merged tile
     }
 
     // Initialize the 2D key map with coordinate strings
@@ -58,7 +64,37 @@ class Game2048 {
 
     // Shift the board in a given direction using the imported helper
     shift(direction) {
-        shift(this.sparseBoard, direction, this.size);  // Pass board, direction, and size
+        // Create a deep copy of the current board state before the shift
+        const previousBoard = JSON.parse(JSON.stringify(this.sparseBoard));
+
+        shift(this.sparseBoard, direction, this.size, this.updateScore.bind(this));  // Pass board, direction, and size
+
+        // Compare the new board with the previous board to see if anything changed
+        if (!this.boardsEqual(previousBoard, this.sparseBoard)) {
+            this.addRandomTile();  // If there was a change, add a random tile
+        } else {
+            console.log()
+            console.log("Invalid Move")
+        }
+    }
+
+    // Helper function to compare two board states
+    boardsEqual(board1, board2) {
+        const keys1 = Object.keys(board1);
+        const keys2 = Object.keys(board2);
+
+        if (keys1.length !== keys2.length) {
+            return false;
+        }
+
+        // Check that both boards have the same keys and values
+        for (let key of keys1) {
+            if (board1[key] !== board2[key]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Convert the sparse dictionary to a 2D array
@@ -92,27 +128,44 @@ class Game2048 {
         }
     }
 
+    // Print the current score
+    printScore() {
+        console.log(`Score: ${this.score}`);
+    }
 
-    // I am not conviced this works yet just a tmp function
     // Check if the game is over (no moves left)
     checkGameOver() {
-        let hasEmptyTiles = Object.keys(this.sparseBoard).length < this.size * this.size;
-        if (hasEmptyTiles) return false;  // There are still empty tiles
+        // Check if there are any empty tiles
+        if (Object.keys(this.sparseBoard).length < this.size * this.size) {
+            return false;  // There are still empty tiles, so the game is not over
+        }
 
-        // Check if there are any adjacent tiles that can merge
+        // Check if any adjacent tiles can merge
         for (let row = 0; row < this.size; row++) {
             for (let col = 0; col < this.size; col++) {
                 let key = this.keyMap[row][col];
                 let current = this.sparseBoard[key];
+
                 if (current !== undefined) {
-                    // Check adjacent tiles (right and down) for possible merges
+                    // Check right (col + 1)
                     if (col + 1 < this.size) {
                         let rightKey = this.keyMap[row][col + 1];
                         if (this.sparseBoard[rightKey] === current) return false;
                     }
+                    // Check down (row + 1)
                     if (row + 1 < this.size) {
                         let downKey = this.keyMap[row + 1][col];
                         if (this.sparseBoard[downKey] === current) return false;
+                    }
+                    // Check left (col - 1)
+                    if (col - 1 >= 0) {
+                        let leftKey = this.keyMap[row][col - 1];
+                        if (this.sparseBoard[leftKey] === current) return false;
+                    }
+                    // Check up (row - 1)
+                    if (row - 1 >= 0) {
+                        let upKey = this.keyMap[row - 1][col];
+                        if (this.sparseBoard[upKey] === current) return false;
                     }
                 }
             }
@@ -121,6 +174,7 @@ class Game2048 {
         // If no empty tiles and no merges are possible, the game is over
         return true;
     }
+
 
 }
 

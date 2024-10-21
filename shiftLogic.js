@@ -1,14 +1,14 @@
 // shiftLogic.js
 const DIRECTIONS = require('./directions');
 
-function shift(board, direction, size) {
+function shift(board, direction, size, updateScoreCallback) {
     for (let i = 0; i < size; i++) {
         // Extract the row or column from the sparse matrix
         let line = getLine(board, direction, i, size);
 
         // Remove nulls and calculate how many nulls to add
         line = line.filter(item => item !== null);
-        line = merge(line, direction);
+        line = merge(line, direction, updateScoreCallback);
 
         let nullsToAdd = size - line.length;
         
@@ -48,7 +48,7 @@ function padLine(line, nullsToAdd, direction) {
     }
 }
 
-function merge(line, direction) {
+function merge(line, direction, updateScoreCallback) {
     // Reverse the line for RIGHT or DOWN directions
     if (direction === DIRECTIONS.RIGHT || direction === DIRECTIONS.DOWN) {
         line.reverse();
@@ -60,7 +60,10 @@ function merge(line, direction) {
     // Merge adjacent tiles if they are equal
     while (i < line.length) {
         if (i + 1 < line.length && line[i] === line[i + 1]) {
-            mergedLine.push(line[i] * 2);  // Merge tiles
+            merged_val = line[i] * 2
+            mergedLine.push(merged_val);  // Merge tiles
+            updateScoreCallback(merged_val);
+            
             i += 2;  // Skip the next tile since it's merged
         } else {
             mergedLine.push(line[i]);  // No merge, just add the tile

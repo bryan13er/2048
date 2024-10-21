@@ -19,30 +19,38 @@ process.stdin.on('keypress', (str, key) => {
         process.exit();  // Allow exiting with Ctrl + C
     }
 
+    let direction = '';
+
     // Handle arrow keys
     switch (key.name) {
         case 'up':
-            game.shift(DIRECTIONS.UP);
+            direction = DIRECTIONS.UP;
             break;
         case 'down':
-            game.shift(DIRECTIONS.DOWN);
+            direction = DIRECTIONS.DOWN;
             break;
         case 'left':
-            game.shift(DIRECTIONS.LEFT);
+            direction = DIRECTIONS.LEFT;
             break;
         case 'right':
-            game.shift(DIRECTIONS.RIGHT);
+            direction = DIRECTIONS.RIGHT;
             break;
         default:
             return;  // Ignore other keys
     }
-
-    // Add a random tile after each move
-    game.addRandomTile();
+    game.shift(direction);
 
     // After shifting, re-render the board
     console.log();
     game.printBoard();
+    game.printScore();
+
+    // Check if the game is over
+    if (game.checkGameOver()) {
+        console.log("Game Over! No more moves left.");
+        console.log("Final Score:", game.score)
+        process.exit();  // End the game
+    }
 });
 
 // Initial rendering of the board
